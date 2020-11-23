@@ -16,10 +16,10 @@ Learning Redux with a simple robot.
 Now this robot is pretty boring we can only switch it on or off! We want a
 cooler robot!
 
-- [x] We all know nothing is cooler than a robot that knows the alphabet! So let's make that!
-- [x] we start with adding a `currentLetter` to the state. Ofcourse we start with A!
-- [x] We want to ask the robot what the current letter is, so we make a selector that does that!
-- [x] So now our robot can give us only an A, very boring still. We want our robot to advance to the next letter. So let's make an action for that. The action will reduce the state so that it wil advance to the next letter. When we get to Z and then move to then next letter, our robot will start with A again.
+- [ ] We all know nothing is cooler than a robot that knows the alphabet! So let's make that!
+- [ ] we start with adding a `currentLetter` to the state. Ofcourse we start with A!
+- [ ] We want to ask the robot what the current letter is, so we make a selector that does that!
+- [ ] So now our robot can give us only an A, very boring still. We want our robot to advance to the next letter. So let's make an action for that. The action will reduce the state so that it wil advance to the next letter. When we get to Z and then move to then next letter, our robot will start with A again.
 - [ ] Now we can ask our robot for the next letter in the alphabet and we can ask it what the current letter is. Now when the robot is switched on, the current letter state should be reset to A. The reducer that is responsible for setting that state should also respond to the switch on action!
 - [ ] Also when the robot is switched off, and we ask it for the current letter, an exception should be thrown. We cannot ask a letter to a robot that is switched off, that would just be weird.
 - [ ] There is one other weird thing, when we ask the robot to advance to the next letter and it is switched off we also want to get an error. We cannot ask something of a robot that is switched off, that would be weird. Actually the only thing we can do with a robot that is switched off, is switching him on. All other actions should result in an error. So this seems like a use case for middleware! So implement some middleware that will throw an error when the robot is off and any action is dispatched that is not switching it on.
