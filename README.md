@@ -1,5 +1,11 @@
+![alt text](https://imgur.com/kp0TIED "Robot")
+
+
+
 # Redux exercise!
 Learning Redux with a simple robot.
+
+
 
 ## Making a robot
 
