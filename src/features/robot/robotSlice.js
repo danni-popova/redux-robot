@@ -1,5 +1,6 @@
 import {createSlice} from '@reduxjs/toolkit';
 import {lookUpWord} from "./robotLookup";
+import {alphabet} from "../../constants";
 
 //createSlice: accepts an initial state and a lookup table
 // with reducer names and functions, and automatically generates
@@ -19,10 +20,10 @@ export const robotSlice = createSlice({
     reducers: {
         switchRobotOn: state => {
             lookUpWord('a');
-            return {...state, isOn: true, error: false, speech: 'Hello!'}
+            return {...state, isOn: true, error: false, message: 'Hello!'}
         },
         switchRobotOff: state => {
-            return {...state, isOn: false, speech: "", currentLetter: 0, nextLetter: 1}
+            return {...state, isOn: false, message: "", currentLetter: 0, nextLetter: 1}
         },
         // An action that advances to the next letter
         advanceToNextLetter: state => {
@@ -31,21 +32,16 @@ export const robotSlice = createSlice({
                 return {
                     ...state,
                     currentLetter: state.currentLetter + 1,
-                    nextLetter: state.nextLetter + 1
+                    nextLetter: state.nextLetter + 1,
+                    message: 'The current letter is: ' + alphabet[state.currentLetter + 1]
                 }
             }
             return {...state, currentLetter: 0}
         },
-        sayMessage: (state, action) => {
-          switch(action.payload){
-              case 'current-letter':
-                  break;
-              case 'next-letter':
-                  break;
-          }
+        sayMessage: state => {
             return {
                 ...state,
-                message: ''
+                message: `Word starting with ${alphabet[state.currentLetter]}: ${lookUpWord()}`
             }
         },
         showError: state => {
