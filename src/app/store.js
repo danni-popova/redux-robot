@@ -1,14 +1,13 @@
 import {configureStore} from '@reduxjs/toolkit';
 import robotReducer, {DISPLAY_ERROR, SWITCH_ON} from '../features/robot/robotSlice';
 
-
+// Creating and configuring the store
 export default configureStore({
     reducer: {
         robot: robotReducer,
     },
-    middleware: [poweredCheckMiddleware],
+    middleware: (getDefaultMiddleware) => getDefaultMiddleware().concat(poweredCheckMiddleware)
 });
-
 
 function poweredCheckMiddleware(storeAPI) {
     return function wrapDispatch(next) {
