@@ -1,30 +1,35 @@
 import React from "react";
+import SortByAlphaIcon from '@material-ui/icons/SortByAlpha';
 import PowerSettingsNewIcon from '@material-ui/icons/PowerSettingsNew';
 import Grid from "@material-ui/core/Grid";
 import SkipNextIcon from '@material-ui/icons/SkipNext';
 import Button from "@material-ui/core/Button";
 import TextField from "@material-ui/core/TextField";
-import Snackbar from '@material-ui/core/Snackbar';
-import MuiAlert from '@material-ui/lab/Alert';
+import PlayCircleOutlineIcon from '@material-ui/icons/PlayCircleOutline';
+import PowerIcon from '@material-ui/icons/Power';
+import PowerOffIcon from '@material-ui/icons/PowerOff';
 
 import {useStyles} from "./styles";
 import {useDispatch, useSelector} from 'react-redux';
 import {
     advanceLetterAsync,
-    GET_NEXT_LETTER,
+    advanceToNextLetter,
     selectError,
     selectIsRobotOn,
-    selectSpeech,
-    SWITCH_OFF,
-    SWITCH_ON
+    selectMessage,
+    switchRobotOff,
+    switchRobotOn,
+    sayMessage
 } from "../../features/robot/robotSlice";
+import IconButton from "@material-ui/core/IconButton";
+import Tooltip from "@material-ui/core/Tooltip";
 
 export function Robot() {
     const classes = useStyles();
     const isPowered = useSelector(selectIsRobotOn);
     const error = useSelector(selectError);
     const dispatch = useDispatch();
-    const speech = useSelector(selectSpeech);
+    const message = useSelector(selectMessage);
 
     const handleClose = (event, reason) => {
         if (reason === 'clickaway') {
@@ -32,7 +37,21 @@ export function Robot() {
         }
     }
     const handleSwitchPowerOn = () => {
-        isPowered ? dispatch(SWITCH_OFF()) : dispatch(SWITCH_ON())
+        isPowered ? dispatch(switchRobotOff()) : dispatch(switchRobotOn())
+    }
+
+    const handleChangeMessage = (action) => {
+        switch(action){
+            case 'next':
+                dispatch(advanceToNextLetter())
+                break;
+            case 'current':
+                sayMessage({action: '', payload: ''})
+                break;
+            case 'auto':
+                console.log('Not yet')
+                break;
+        }
     }
 
     return (
@@ -40,84 +59,57 @@ export function Robot() {
             <img
                 src='https://previews.123rf.com/images/anatolir/anatolir1808/anatolir180810297/105975416-mechanical-robot-banner-flat-style.jpg'
                 alt='Random robot'
-                width='500px'
+                width='600px'
                 style={{paddingBottom: "10px"}}/>
-            <TextField
-                fullWidth
-                disabled={!isPowered}
-                id="outlined-disabled"
-                label="Robot messages will appear here..."
-                value={speech}
-                variant="outlined"
-                InputProps={{
-                    readOnly: true,
-                }}
-            />
-            <Grid
-                container
-                direction="column"
-                justify="center"
-                alignItems="stretch"
-            >
-                <Grid item style={{padding: "10px"}}>
+            <Grid container spacing={1}>
+                <Grid item xs={11}>
+                    <TextField
+                        fullWidth
+                        id="outlined-disabled"
+                        label="Robot messages will appear here..."
+                        value={message}
+                        InputProps={{readOnly: true}}
+                    />
+                </Grid>
+                <Grid item xs={1}>
+                    <Tooltip title="Power" placement="bottom">
+                    <IconButton
+                        aria-label="power"
+                        onClick={() => handleSwitchPowerOn()}
+                        color={isPowered ? 'primary' : "secondary"}>
+                        {isPowered ? <PowerIcon fontSize='large' /> : <PowerOffIcon fontSize='large' />}
+                    </IconButton>
+                    </Tooltip>
+                </Grid>
+                <Grid item xs={4}>
                     <Button
-                        variant="contained"
+                        color="primary"
+                        className={classes.button}
+                        startIcon={<SortByAlphaIcon/>}
+                        onClick={() => handleChangeMessage('current')}>
+                        Current letter
+                    </Button>
+                </Grid>
+                <Grid item xs={4}>
+                    <Button
 
-                        color={isPowered ? 'primary' : 'secondary'}
-                        className={classes.button}
-                        startIcon={<PowerSettingsNewIcon/>}
-                        onClick={() =>
-                            handleSwitchPowerOn()
-                        }
-                    >
-                        {isPowered ? 'Switch power off' : 'Switch power on'}
-                    </Button>
-                </Grid>
-                <Grid item style={{padding: "10px"}}>
-                    <Button
-                        variant="contained"
                         color="primary"
                         className={classes.button}
                         startIcon={<SkipNextIcon/>}
-                        onClick={() =>
-                            dispatch(GET_NEXT_LETTER())
-                        }
-                    >
-                        Get next letter
+                        onClick={() => handleChangeMessage('next')}>
+                        Next letter
                     </Button>
                 </Grid>
-                <Grid item style={{padding: "10px"}}>
+                <Grid item xs={4}>
                     <Button
-                        variant="contained"
                         color="primary"
                         className={classes.button}
-                        startIcon={<SkipNextIcon/>}
-                        onClick={() =>
-                            dispatch(advanceLetterAsync(2000))
-                        }
-                    >
-                        Get current letter
-                    </Button>
-                </Grid>
-                <Grid item style={{padding: "10px"}}>
-                    <Button
-                        variant="contained"
-                        color="primary"
-                        className={classes.button}
-                        startIcon={<SkipNextIcon/>}
-                        onClick={() =>
-                            dispatch(advanceLetterAsync(2000))
-                        }
-                    >
-                        Keep getting next letter
+                        startIcon={<PlayCircleOutlineIcon/>}
+                        onClick={() => dispatch(advanceToNextLetter())}>
+                        Auto advance
                     </Button>
                 </Grid>
             </Grid>
-            <Snackbar open={error} autoHideDuration={3000} onClose={handleClose}>
-                <MuiAlert elevation={6} variant="filled" onClose={handleClose} severity="error" color="warning">
-                    You cannot action the robot when it's turned off
-                </MuiAlert>
-            </Snackbar>
         </div>
     );
 }

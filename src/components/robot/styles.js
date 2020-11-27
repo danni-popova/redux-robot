@@ -1,8 +1,14 @@
-import { makeStyles } from '@material-ui/core/styles';
+import {makeStyles} from '@material-ui/core/styles';
 
 export const useStyles = makeStyles((theme) => ({
     root: {
-        width: '500px',
-        height: '500px',
+        marginTop: '20px',
+        width: '600px',
+        height: '600px',
+        flexGrow: 1,
+
     },
+    button: {
+        height: '48px'
+    }
 }));

@@ -11,20 +11,21 @@ export const robotSlice = createSlice({
         currentLetter: 0,
         nextLetter: 1,
         error: false,
-        speech: ""
+        message: ""
     },
     //createSlice and createReducer wrap your function with produce from the Immer library.
     // This means you can write code that "mutates" the state inside the reducer,
     // and Immer will safely return a correct immutably updated result.
     reducers: {
-        SWITCH_ON: state => {
+        switchRobotOn: state => {
             lookUpWord('a');
             return {...state, isOn: true, error: false, speech: 'Hello!'}
         },
-        SWITCH_OFF: state => {
-            return {...state, isOn: false, speech: ""}
+        switchRobotOff: state => {
+            return {...state, isOn: false, speech: "", currentLetter: 0, nextLetter: 1}
         },
-        GET_NEXT_LETTER: state => {
+        // An action that advances to the next letter
+        advanceToNextLetter: state => {
             console.log('Getting next letter')
             if (state.currentLetter < 25) {
                 return {
@@ -35,34 +36,48 @@ export const robotSlice = createSlice({
             }
             return {...state, currentLetter: 0}
         },
-        DISPLAY_ERROR: state => {
+        sayMessage: (state, action) => {
+          switch(action.payload){
+              case 'current-letter':
+                  break;
+              case 'next-letter':
+                  break;
+          }
+            return {
+                ...state,
+                message: ''
+            }
+        },
+        showError: state => {
             return {...state, error: true}
         }
     },
 });
 
 
-// The function below is called a thunk and allows us to perform async logic. It
-// can be dispatched like a regular action: `dispatch(incrementAsync(10))`. This
-// will call the thunk with the `dispatch` function as the first argument. Async
-// code can then be executed and other actions can be dispatched
 export const advanceLetterAsync = time => dispatch => {
     console.log('advanceLetterAsync')
     setTimeout(() => {
-        dispatch(GET_NEXT_LETTER());
+        dispatch(advanceToNextLetter());
     }, time);
 };
 
 
-export const {SWITCH_ON, SWITCH_OFF, GET_NEXT_LETTER, DISPLAY_ERROR, SPEAK} = robotSlice.actions;
+export const {switchRobotOn, switchRobotOff, advanceToNextLetter, sayMessage, showError} = robotSlice.actions;
 
 // Selector that will tell us if the robot is on
 export const selectIsRobotOn = state => state.robot.isOn;
+
+// Selector that will return the current letter
+export const selectCurrentLetter = state => state.robot.currentLetter;
+
+// Selector that will return the next letter
+export const selectNextLetter = state => state.robot.nextLetter;
 
 // Selector that will return error
 export const selectError = state => state.robot.error;
 
 // Selector that will return what the robot should say
-export const selectSpeech = state => state.robot.speech;
+export const selectMessage = state => state.robot.message;
 
 export default robotSlice.reducer;
