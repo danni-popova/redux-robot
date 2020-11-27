@@ -7,16 +7,16 @@ import './App.css';
 const theme = createMuiTheme({
     palette: {
         primary: {
-            light: '#000000',
-            main: '#7F0000',
-            dark: '#00d57c',
-            contrastText: '#fff'
+            light: '#5cb2c9',
+            main: '#349fbc',
+            dark: '#246f83',
+            contrastText: '#c8e4fb'
         },
         secondary: {
-            light: '#000000',
-            dark: '#36393f',
-            main: '#1DEB7E',
-            contrastText: '#fff'
+            light: '#e7c43b',
+            dark: '#9d7f07',
+            main: '#e1b60b',
+            contrastText: '#ffffff'
         }
     }
 });

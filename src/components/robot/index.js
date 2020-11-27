@@ -1,29 +1,35 @@
 import React from "react";
-import PowerSettingsNewIcon from '@material-ui/icons/PowerSettingsNew';
-import TextField from "@material-ui/core/TextField";
+import SortByAlphaIcon from '@material-ui/icons/SortByAlpha';
 import Grid from "@material-ui/core/Grid";
 import SkipNextIcon from '@material-ui/icons/SkipNext';
 import Button from "@material-ui/core/Button";
-import Snackbar from '@material-ui/core/Snackbar';
-import MuiAlert from '@material-ui/lab/Alert';
+import TextField from "@material-ui/core/TextField";
+import PlayCircleOutlineIcon from '@material-ui/icons/PlayCircleOutline';
+import PowerIcon from '@material-ui/icons/Power';
+import PowerOffIcon from '@material-ui/icons/PowerOff';
+import IconButton from "@material-ui/core/IconButton";
+import Tooltip from "@material-ui/core/Tooltip";
+import { Alert } from '@material-ui/lab';
 import {useStyles} from "./styles";
 import {useDispatch, useSelector} from 'react-redux';
-import {alphabet} from "../../constants";
 import {
-    GET_NEXT_LETTER,
-    selectCurrentLetter,
+    advanceToNextLetter,
+    sayMessage,
     selectError,
     selectIsRobotOn,
-    SWITCH_OFF,
-    SWITCH_ON
+    selectMessage,
+    switchRobotOff,
+    switchRobotOn
 } from "../../features/robot/robotSlice";
+import Snackbar from "@material-ui/core/Snackbar";
 
-export function Robot(props) {
+
+export function Robot() {
     const classes = useStyles();
     const isPowered = useSelector(selectIsRobotOn);
     const error = useSelector(selectError);
-    const currentLetter = useSelector(selectCurrentLetter);
     const dispatch = useDispatch();
+    const message = useSelector(selectMessage);
 
     const handleClose = (event, reason) => {
         if (reason === 'clickaway') {
@@ -31,52 +37,82 @@ export function Robot(props) {
         }
     }
     const handleSwitchPowerOn = () => {
-        isPowered ? dispatch(SWITCH_OFF()) : dispatch(SWITCH_ON())
+        isPowered ? dispatch(switchRobotOff()) : dispatch(switchRobotOn())
+    }
+
+    const handleChangeMessage = (action) => {
+        switch (action) {
+            case 'next':
+                dispatch(advanceToNextLetter())
+                break;
+            case 'current':
+                sayMessage({action: '', payload: ''})
+                break;
+            case 'auto':
+                console.log('Not yet')
+                break;
+        }
     }
 
     return (
         <div className={classes.root}>
-            <TextField
-                fullWidth
-                disabled
-                id="outlined-disabled"
-                label="Robot speech"
-                value={"Hello from this terrible robot! Current letter is: " + alphabet[currentLetter]}
-                variant="outlined"
-            />
-            <Grid
-                container
-                direction="row"
-                justify="center"
-                alignItems="stretch"
-            >
-                <Grid item style={{padding: "10px"}}>
+            <img
+                src='https://previews.123rf.com/images/anatolir/anatolir1808/anatolir180810297/105975416-mechanical-robot-banner-flat-style.jpg'
+                alt='Random robot'
+                width='600px'
+                style={{paddingBottom: "10px"}}/>
+            <Grid container spacing={1}>
+                <Grid item xs={11}>
+                    <TextField
+                        fullWidth
+                        id="outlined-disabled"
+                        label="Robot messages will appear here..."
+                        value={message}
+                        InputProps={{readOnly: true}}
+                    />
+                </Grid>
+                <Grid item xs={1}>
+                    <Tooltip title="Power" placement="bottom">
+                        <IconButton
+                            aria-label="power"
+                            onClick={() => handleSwitchPowerOn()}
+                            color={isPowered ? 'primary' : "secondary"}>
+                            {isPowered ? <PowerIcon fontSize='large'/> : <PowerOffIcon fontSize='large'/>}
+                        </IconButton>
+                    </Tooltip>
+                </Grid>
+                <Grid item xs={4}>
                     <Button
-                        variant="contained"
-                        color={isPowered ? 'primary' : 'secondary'}
+                        color="primary"
                         className={classes.button}
-                        startIcon={<PowerSettingsNewIcon/>}
-                        onClick={() => handleSwitchPowerOn()}
-                    >
-                        {isPowered ? 'Switch power off' : 'Switch power on'}
+                        startIcon={<SortByAlphaIcon/>}
+                        onClick={() => dispatch(sayMessage())}>
+                        Find word
                     </Button>
                 </Grid>
-                <Grid item style={{padding: "10px"}}>
+                <Grid item xs={4}>
                     <Button
-                        variant="contained"
-                        color="secondary"
+                        color="primary"
                         className={classes.button}
                         startIcon={<SkipNextIcon/>}
-                        onClick={() => dispatch(GET_NEXT_LETTER())}
-                    >
-                        Get next letter
+                        onClick={() => dispatch(advanceToNextLetter())}>
+                        Next letter
+                    </Button>
+                </Grid>
+                <Grid item xs={4}>
+                    <Button
+                        color="primary"
+                        className={classes.button}
+                        startIcon={<PlayCircleOutlineIcon/>}
+                        onClick={() => dispatch(sayMessage())}>
+                        Auto advance
                     </Button>
                 </Grid>
             </Grid>
             <Snackbar open={error} autoHideDuration={3000} onClose={handleClose}>
-                <MuiAlert elevation={6} variant="filled" onClose={handleClose} severity="error">
+                <Alert elevation={6} variant="filled" onClose={handleClose} severity="error" color="warning">
                     You cannot action the robot when it's turned off
-                </MuiAlert>
+                </Alert>
             </Snackbar>
         </div>
     );
