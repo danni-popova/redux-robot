@@ -35,7 +35,7 @@ cooler robot!
  - [x] Also when the robot is switched off, and we ask it for the current letter, an exception should be thrown. We cannot ask a letter to a robot that is switched off, that would just be weird.
  - [x] There is one other weird thing, when we ask the robot to advance to the next letter and it is switched off we also want to get an error. We cannot ask something of a robot that is switched off, that would be weird. Actually the only thing we can do with a robot that is switched off, is switching him on. All other actions should result in an error. So this seems like a use case for middleware! So implement some middleware that will throw an error when the robot is off and any action is dispatched that is not switching it on.
 
-## automating things
+## Automating things
 
 Our robot is not really a robot yet, it will not tell us anything on it's own. It is not doing anything on it's own! So let's make the robot do automatic things.
 
