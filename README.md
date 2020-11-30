@@ -1,11 +1,15 @@
-![Robot](https://i.imgur.com/kp0TIED.png "Robot")
-
-
+![Robot](https://i.imgur.com/8Vxal3P.png "Robot")
 
 # Redux exercise!
 Learning Redux with a simple robot.
 
-
+### Running the robot
+```sh
+git checkout git@github.com:danni-popova/redux-robot.git
+cd redux-robot/
+yarn
+yarn start
+```
 
 ## Making a robot
 
