@@ -2,7 +2,9 @@ import {configureStore} from '@reduxjs/toolkit';
 import robotReducer, {
     advanceToNextLetter,
     lookUpWordAsync,
-    sendMessage, setWord,
+    sendMessage,
+    setError,
+    setWord,
     switchRobotOn
 } from '../features/robot/robotSlice';
 
@@ -20,7 +22,7 @@ function poweredCheckMiddleware(storeAPI) {
     return function wrapDispatch(next) {
         return function handleAction(action) {
             if (!storeAPI.getState().robot.isOn && !switchRobotOn.match(action)) {
-                console.error('Action is not permitted, robot is off!')
+                next(setError(true))
                 return
             }
             next(action)
@@ -37,7 +39,7 @@ function sendMessagesMiddleware(storeAPI) {
             }
 
             // The robot should update the message with the word
-            if(setWord.match(action)){
+            if (setWord.match(action)) {
                 // First set the actual value of the word
                 next(action)
 
@@ -63,15 +65,16 @@ function sendMessagesMiddleware(storeAPI) {
     }
 }
 
-function logger(store) {
-    return function wrapDispatch(next) {
-        return function handleAction(action) {
-            console.group(action.type)
-            console.info('dispatching', action)
-            let result = next(action)
-            console.log('next state', store.getState())
-            console.groupEnd()
-            return result
-        }
-    }
-}
+// Logging middleware for debugging
+// function logger(store) {
+//     return function wrapDispatch(next) {
+//         return function handleAction(action) {
+//             console.group(action.type)
+//             console.info('dispatching', action)
+//             let result = next(action)
+//             console.log('next state', store.getState())
+//             console.groupEnd()
+//             return result
+//         }
+//     }
+// }

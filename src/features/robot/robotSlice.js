@@ -29,6 +29,9 @@ export const robotSlice = createSlice({
         setWord: (state, action) => {
             return {...state, word: action.payload}
         },
+        setError: (state, action) => {
+            return {...state, error: action.payload}
+        },
         // An action that advances to the next letter
         advanceToNextLetter: state => {
             // If the last letter is reached, start again
@@ -103,6 +106,6 @@ export const lookUpWordAsync = () => async (dispatch, getState) => {
     dispatch(setWord(response.data[randomIndex].word))
 };
 
-export const {switchRobotOn, switchRobotOff, advanceToNextLetter, sendMessage, enableAutoAdvance, disableAutoAdvance, setWord} = robotSlice.actions;
+export const {switchRobotOn, switchRobotOff, advanceToNextLetter, sendMessage, enableAutoAdvance, disableAutoAdvance, setError, setWord} = robotSlice.actions;
 
 export default robotSlice.reducer;
