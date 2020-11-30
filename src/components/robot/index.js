@@ -4,7 +4,6 @@ import Grid from "@material-ui/core/Grid";
 import SkipNextIcon from '@material-ui/icons/SkipNext';
 import Button from "@material-ui/core/Button";
 import TextField from "@material-ui/core/TextField";
-// import Tooltip from "@material-ui/core/Tooltip";
 import PlayCircleOutlineIcon from '@material-ui/icons/PlayCircleOutline';
 import PowerIcon from '@material-ui/icons/Power';
 import PowerOffIcon from '@material-ui/icons/PowerOff';
@@ -23,8 +22,6 @@ import {
     switchRobotOff,
     switchRobotOn
 } from "../../features/robot/robotSlice";
-import Alert from "@material-ui/lab/Alert";
-import Snackbar from "@material-ui/core/Snackbar";
 
 export function Robot() {
     const classes = useStyles();
@@ -37,17 +34,10 @@ export function Robot() {
         isPowered ? dispatch(switchRobotOff()) : dispatch(switchRobotOn())
     }
 
-    const handleNextLetterClick = () => {
-        dispatch(advanceToNextLetter());
-    }
-    const handleCurrentLetterClick = () => {
-        dispatch(sendMessage('current-letter'));
-    }
     const handleAutoAdvanceClick = () => {
         autoAdvanceIsOn ? dispatch(disableAutoAdvance()) : dispatch(enableAutoAdvance());
         dispatch(advanceLetterAsync(2000))
     }
-
 
     return (
         <div className={classes.root}>
@@ -67,22 +57,19 @@ export function Robot() {
                     />
                 </Grid>
                 <Grid item xs={1}>
-                    {/*For some reason this is making my app error*/}
-                    {/*<Tooltip title="Power" placement="bottom">*/}
                     <IconButton
                         aria-label="power"
                         onClick={() => handleSwitchPowerOn()}
                         color={isPowered ? 'primary' : "secondary"}>
                         {isPowered ? <PowerIcon fontSize='large'/> : <PowerOffIcon fontSize='large'/>}
                     </IconButton>
-                    {/*</Tooltip>*/}
                 </Grid>
                 <Grid item xs={4}>
                     <Button
                         color="primary"
                         className={classes.button}
                         startIcon={<SortByAlphaIcon/>}
-                        onClick={() => handleCurrentLetterClick()}>
+                        onClick={() => dispatch(sendMessage('display-letter'))}>
                         Current letter
                     </Button>
                 </Grid>
@@ -91,7 +78,7 @@ export function Robot() {
                         color="primary"
                         className={classes.button}
                         startIcon={<SkipNextIcon/>}
-                        onClick={() => handleNextLetterClick()}>
+                        onClick={() => dispatch(advanceToNextLetter())}>
                         Next letter
                     </Button>
                 </Grid>
@@ -106,11 +93,6 @@ export function Robot() {
                     </Button>
                 </Grid>
             </Grid>
-            <Snackbar open={false} autoHideDuration={3000}>
-                <Alert elevation={6} variant="filled" severity="error" color="warning">
-                    You cannot action the robot when it's turned off
-                </Alert>
-            </Snackbar>
         </div>
     );
 }
