@@ -15,13 +15,14 @@ import {
     advanceToNextLetter,
     disableAutoAdvance,
     enableAutoAdvance,
-    selectAutoAdvance,
+    selectAutoAdvance, selectError,
     selectIsRobotOn,
     selectMessage,
     sendMessage,
     switchRobotOff,
     switchRobotOn
 } from "../../features/robot/robotSlice";
+import Alert from "@material-ui/lab/Alert";
 
 export function Robot() {
     const classes = useStyles();
@@ -29,6 +30,7 @@ export function Robot() {
     const isPowered = useSelector(selectIsRobotOn);
     const message = useSelector(selectMessage);
     const autoAdvanceIsOn = useSelector(selectAutoAdvance);
+    const error = useSelector(selectError);
 
     const handleSwitchPowerOn = () => {
         isPowered ? dispatch(switchRobotOff()) : dispatch(switchRobotOn())
@@ -92,7 +94,16 @@ export function Robot() {
                         {autoAdvanceIsOn ? "Stop Advance" : "Auto Advance"}
                     </Button>
                 </Grid>
+                <Grid item xs={12}>
+                    {
+                        error ?
+                        <Alert severity="error">You cannot action the robot while it's off!</Alert> :
+                    <div/>
+                    }
+
+                </Grid>
             </Grid>
+
         </div>
     );
 }
