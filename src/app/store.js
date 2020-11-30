@@ -1,9 +1,8 @@
 import {configureStore} from '@reduxjs/toolkit';
 import robotReducer, {
-    advanceLetterAsync,
     advanceToNextLetter,
-    enableAutoAdvance,
-    sendMessage,
+    lookUpWordAsync,
+    sendMessage, setWord,
     switchRobotOn
 } from '../features/robot/robotSlice';
 
@@ -12,7 +11,7 @@ export default configureStore({
         robot: robotReducer,
     },
     middleware: (getDefaultMiddleware) =>
-        getDefaultMiddleware().concat(poweredCheckMiddleware, sayMessagesMiddleware, autoAdvanceMiddleware)
+        getDefaultMiddleware().concat(poweredCheckMiddleware, sendMessagesMiddleware)
 });
 
 // Middleware that will stop any actions to be performed on the robot when it's off
@@ -29,7 +28,7 @@ function poweredCheckMiddleware(storeAPI) {
     }
 }
 
-function sayMessagesMiddleware(storeAPI) {
+function sendMessagesMiddleware(storeAPI) {
     return function wrapDispatch(next) {
         return function handleAction(action) {
             // The robot will greet us when it's switched on
@@ -37,24 +36,42 @@ function sayMessagesMiddleware(storeAPI) {
                 next(sendMessage('greet'))
             }
 
-            // The robot will say the next letter when the advance action is called
-            if (advanceToNextLetter.match(action)) {
-                next(sendMessage('next-letter'))
+            // The robot should update the message with the word
+            if(setWord.match(action)){
+                // First set the actual value of the word
+                next(action)
+
+                // Then display it
+                next(sendMessage('set-word'))
+                return
             }
 
+            // The robot will say the next letter when the advance action is called
+            if (advanceToNextLetter.match(action)) {
+                // First, should change the letter
+                next(action)
+
+                // send message will set next letter and the message
+                next(sendMessage('display-letter'))
+
+                // lookUpWord wil will set word
+                storeAPI.dispatch(lookUpWordAsync())
+                return
+            }
             next(action)
         }
     }
 }
 
-function autoAdvanceMiddleware() {
+function logger(store) {
     return function wrapDispatch(next) {
         return function handleAction(action) {
-            // if(enableAutoAdvance.match(action)){
-            //     console.log('auto-advance enabled')
-            //     advanceLetterAsync()
-            // }
-            next(action)
+            console.group(action.type)
+            console.info('dispatching', action)
+            let result = next(action)
+            console.log('next state', store.getState())
+            console.groupEnd()
+            return result
         }
     }
 }
