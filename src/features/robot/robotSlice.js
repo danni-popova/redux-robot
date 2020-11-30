@@ -1,79 +1,102 @@
-import {createSlice} from '@reduxjs/toolkit';
-import {lookUpWord} from "./robotLookup";
+import {createAsyncThunk, createSlice} from '@reduxjs/toolkit';
+import axios from "axios";
 import {alphabet} from "../../constants";
 
-//createSlice: accepts an initial state and a lookup table
-// with reducer names and functions, and automatically generates
-// action creator functions, action type strings, and a reducer function.
 export const robotSlice = createSlice({
     name: 'robot',
     initialState: {
         isOn: false,
         currentLetter: 0,
-        nextLetter: 1,
         error: false,
-        message: ""
+        message: "",
+        autoAdvance: false
     },
-    //createSlice and createReducer wrap your function with produce from the Immer library.
-    // This means you can write code that "mutates" the state inside the reducer,
-    // and Immer will safely return a correct immutably updated result.
     reducers: {
+        // Reducers and actions for turning the robot on and off
         switchRobotOn: state => {
-            lookUpWord('a');
-            return {...state, isOn: true, error: false, message: 'Hello!'}
+            return {...state, isOn: true, error: false}
         },
         switchRobotOff: state => {
-            return {...state, isOn: false, message: "", currentLetter: 0, nextLetter: 1}
+            return {...state, isOn: false, currentLetter: 0, message: "",}
         },
         // An action that advances to the next letter
         advanceToNextLetter: state => {
             console.log('Getting next letter')
-            if (state.currentLetter < 25) {
+            // If the last letter is reached, start again
+            if (state.currentLetter < 24) {
                 return {
                     ...state,
                     currentLetter: state.currentLetter + 1,
-                    nextLetter: state.nextLetter + 1,
-                    message: 'The current letter is: ' + alphabet[state.currentLetter + 1]
                 }
             }
             return {...state, currentLetter: 0}
         },
-        sayMessage: state => {
-            return {
-                ...state,
-                message: `Word starting with ${alphabet[state.currentLetter]}: ${lookUpWord()}`
+        // An action to use that says messages
+        sendMessage: (state, action) => {
+            let messageToSend = '';
+
+            switch (action.payload) {
+                case 'current-letter':
+                    messageToSend = `Current letter is: ${alphabet[state.currentLetter]}`;
+                    break;
+
+                case 'next-letter':
+                    messageToSend = `Current letter is: ${alphabet[state.currentLetter + 1]}`;
+                    break;
+
+                case 'greet':
+                    messageToSend = 'Hello!'
+                    break;
+
+                default:
+                    messageToSend = 'Some other action was called'
             }
+
+            return {...state, message: messageToSend}
         },
-        showError: state => {
-            return {...state, error: true}
+        enableAutoAdvance: state => {
+            return {...state, autoAdvance: true}
+        },
+        disableAutoAdvance: state => {
+            return {...state, autoAdvance: false}
         }
     },
 });
 
-
-export const advanceLetterAsync = time => dispatch => {
-    console.log('advanceLetterAsync')
-    setTimeout(() => {
-        dispatch(advanceToNextLetter());
-    }, time);
-};
-
-
-export const {switchRobotOn, switchRobotOff, advanceToNextLetter, sayMessage, showError} = robotSlice.actions;
-
 // Selector that will tell us if the robot is on
 export const selectIsRobotOn = state => state.robot.isOn;
 
+// Selector that will tell us if the robot should advance to the next letter automatically
+export const selectAutoAdvance = state => state.robot.autoAdvance;
+
+export const advanceLetterAsync = (time) => (dispatch, getState) => {
+    console.log('Advance letter async has been called')
+    console.log(getState().robot.autoAdvance)
+
+    // Repeat the action until it's permitted to do so
+    // this doesn't clean anything up so...
+    let refreshID = setInterval(function () {
+        if (!getState().robot.autoAdvance) {
+            clearInterval(refreshID);
+        }
+        console.log('Auto advance is on')
+        dispatch(advanceToNextLetter());
+    }, time)
+
+};
+
+export const {switchRobotOn, switchRobotOff, advanceToNextLetter, sendMessage, enableAutoAdvance, disableAutoAdvance} = robotSlice.actions;
+
 // Selector that will return the current letter
-export const selectCurrentLetter = state => state.robot.currentLetter;
+export const selectCurrentLetter = state => alphabet[state.robot.currentLetter];
 
-// Selector that will return the next letter
-export const selectNextLetter = state => state.robot.nextLetter;
-
-// Selector that will return error
-export const selectError = state => state.robot.error;
-
-// Selector that will return what the robot should say
+// Selector for the message to display
 export const selectMessage = state => state.robot.message;
+
+export const fetchWord = createAsyncThunk('robot/fetchWord', async (state) => {
+    const response = await axios.get(`https://api.datamuse.com/words?sp=a*&max=10000`)
+    const randomIndex = Math.floor(Math.random() * 10000);
+    return response.data[randomIndex].word;
+})
 
 export default robotSlice.reducer;
